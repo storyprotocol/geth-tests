@@ -21,8 +21,9 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/crypto"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/consensys/gnark-crypto/ecc"
 	bls12381 "github.com/consensys/gnark-crypto/ecc/bls12-381"
@@ -244,7 +245,15 @@ func (c *ecrecover) Run(evm *EVM, input []byte) ([]byte, error) {
 	}
 
 	// the first byte of pubkey is bitcoin heritage
-	return common.LeftPadBytes(crypto.Keccak256(pubKey[1:])[12:], 32), nil
+	result := common.LeftPadBytes(crypto.Keccak256(pubKey[1:])[12:], 32)
+	// (Upgrade Test) modified result to include 0x01 to expect signature verification to fail
+	if evm.Context.BlockNumber.Cmp(big.NewInt(1000)) >= 0 {
+		fmt.Println("Upgraded ECRecover precompile executed")
+		result = append(result, 0x01) // Upgraded logic
+	} else {
+		fmt.Println("Original ECRecover precompile executed")
+	}
+	return result, nil
 }
 
 // SHA256 implemented as a native contract.
