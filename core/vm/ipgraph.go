@@ -92,6 +92,12 @@ func (c *ipGraph) addParentIp(input []byte, evm *EVM) ([]byte, error) {
 	log.Info("addParentIp", "ipId", ipId, "parentCount", parentCount)
 	evm.StateDB.SetState(ipGraphAddress, common.BytesToHash(ipId.Bytes()), common.BigToHash(parentCount))
 
+	if evm.Context.BlockNumber.Cmp(big.NewInt(1000)) >= 0 {
+		log.Info("addParentIp", "testUpgrade", ipId, "parentCount", parentCount)
+		slot := crypto.Keccak256Hash([]byte("testUpgrade")).Big()
+		evm.StateDB.SetState(ipGraphAddress, common.BigToHash(slot), common.BigToHash(parentCount))
+	}
+
 	return nil, nil
 }
 
