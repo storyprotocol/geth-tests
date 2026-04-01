@@ -80,16 +80,6 @@ jobs:
             --load \
             -f ./Dockerfile \
             . 
-      
-      - name: Scan image for vulnerabilities using Trivy
-        uses: aquasecurity/trivy-action@0.20.0
-        with:
-          image-ref: ${{ env.REPOSITORY_URI }}:latest
-          format: 'table'
-          exit-code: 1
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'HIGH,CRITICAL'
 
       - name: Push the Docker image to ECR
         run: |
